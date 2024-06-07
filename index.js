@@ -4,14 +4,18 @@ const { Api } = require('telegram/tl');
 const readline = require('readline');
 const { message, users } = require('telegram/client');
 const { title } = require('process');
+require("dotenv").config()
 
-const apiId = 20211869; // Replace with your API ID
-const apiHash = '739e29484824a3a409b9e1a7a88e9974'; // Replace with your API Hash
-const phoneNumber = '+959420479093'; //// Replace with your phone number
+const apiId = parseInt(process.env.API_ID,10);
+const apiHash = process.env.API_HASH; 
+const phoneNumber = process.env.PHONE; 
 
-const myToken = "1BQANOTEuMTA4LjU2LjE4NQG7SHmQvrP9BdjRQsF3n1gMFDKIXNKWjy1Q6rPfi4/REH2HIFAKWGzarAxDaAyKBIW5VHlg6quYhz624VstKn+fNupkOWvNNJDhO0XrX43rk6mOeWjfehmCE186CflHWbcFJHjvjNDHmIHyygsnMsiblkYTMtikTFsKRDmr4S7JFUWvchzGTg00W9eb/GtRmghRxSywBdPeNMH3jSbNG4psgdMyzWKDX+w+fXpTC2GNni0uPQ/O9UWDq4MiFbnGam55r2OkJ9pfDCS/2tYZiNXExtEu3xuS+lYMNA1ROaky5TEyy0LcpRr4s3SDUpIvLwXj5vcxjvV95bme6bZPcZBVvg=="
-
-const stringSession = new StringSession(myToken); // Empty string for a new session
+const myToken = process.env.TOKEN || ""
+console.log('api id', apiId)
+console.log('token' , myToken)
+console.log('phone',phoneNumber)
+console.log("hash", apiHash)
+const stringSession = new StringSession(myToken);
 
 const client = new TelegramClient(stringSession, apiId, apiHash, {
     connectionRetries: 5,
@@ -39,12 +43,12 @@ async function pollMessages(client, channel,onShortMessage = null) {
         if(update.className === "UpdateShortMessage"){
            if(onShortMessage != null) onShortMessage(update.message)
             try {
-                const result =  await client.invoke(
-                   new Api.messages.SendMessage({
-                    peer: 'thanwana',
-                    message: "Hello"
-                   })
-                )
+                // const result =  await client.invoke(
+                //    new Api.messages.SendMessage({
+                //     peer: 'thanwana',
+                //     message: "Hello"
+                //    })
+                // )
                 console.log("send message success, ", result)
    
                } catch (error) {
@@ -72,8 +76,6 @@ async function pollMessages(client, channel,onShortMessage = null) {
 
 async function getAllMessages(client, channel, limit = 100, offsetId = 0) {
     let allMessages = [];
-    // let offsetId = 0;
-    // let limit = 100; // You can adjust the limit as needed
 
     while (true) {
         const history = await client.invoke(
@@ -88,7 +90,7 @@ async function getAllMessages(client, channel, limit = 100, offsetId = 0) {
         );
 
         if (history.messages.length === 0) {
-            break; // Exit the loop when there are no more messages
+            break; 
         }
 
         allMessages = allMessages.concat(history.messages);
@@ -113,18 +115,10 @@ async function getAllMessages(client, channel, limit = 100, offsetId = 0) {
 
     console.log('You are now connected.');
 
-    const channel = await client.getEntity('myanmar_epubs'); // Channel username
+    const channel = await client.getEntity('myanmar_epubs'); 
     // client.sendMessage()
     const result = await getAllMessages(client, channel)
-    // You can specify message IDs here
-    await client.invoke(
-        new Api.messages.SentEncryptedFile(
-            {
-             
-                
-            }
-        )
-    )
+
 
     console.log("session save", client.session.save())
     console.log(result);

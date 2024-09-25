@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.4.5",
-    "telegram": "^2.21.2"
+    "node-fetch": "^2.7.0",
+    "nodemon": "^3.1.7",
+    "telegram": "^2.25.11"
   }
 }

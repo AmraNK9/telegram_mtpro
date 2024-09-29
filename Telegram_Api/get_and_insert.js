@@ -4,11 +4,12 @@ const readline = require('readline');
 const fs = require("fs")
 // const { message, users } = require('telegram/client');
 // const { title } = require('process');
-const { getAllMessages, getMessages } = require("./util/get_all_message")
-const { pollMessages } = require("./util/polling_message");
+const { getAllMessages } = require("./get_all_message")
+// const { pollMessages } = require("./util/polling_message");
 const { adsFilter } = require('./util/ads_filter');
-const { findMovie } = require('./TMDB_Api/search_movie');
+const { findMovie } = require('../TMDB_Api/search_movie');
 const { filterYearFromTitle } = require('./util/year_filter_title');
+const { insertMovieToDb } = require('../Database/data_insertion');
 require("dotenv").config();
 
 
@@ -46,7 +47,7 @@ async function downloadPhoto(client, media, filePath) {
     console.log(`Photo saved to ${filePath}`);
 }
 
-(async () => {
+const getAndInsertTeleMoviesToDb = async (channelName = '', {onlyGet = false}) => {
     await client.start({
         phoneNumber: async () => phoneNumber,
         password: async () => await input('Enter your password: '),
@@ -57,11 +58,16 @@ async function downloadPhoto(client, media, filePath) {
 
     console.log('You are now connected.');
     // https://t.me/moviecrazyy252
-    // const channel = await client.getEntity('moviecrazyy252'); 
+    //https://t.me/youthfavouritemovies
+    // https://t.me/Movie_Zone_Mm
+    // https://t.me/Kyaungni18
+    const channel =  channelName;
     // client.sendMessage()
     // https://t.me/movieparadise227
-    const result = await getAllMessages(client, "movieparadise227", 10)
+    const result = await getAllMessages(client, channel, 10)
     // https://t.me/myanmar_epubs
+    //https://t.me/Kyaungni02
+    // https://t.me/moviecrazyy531
 
     let movieList = [];
     for (let index = 0; index < result.length; index++) {
@@ -73,23 +79,23 @@ async function downloadPhoto(client, media, filePath) {
             || adsFilter(description)
         ) {
             console.log("return ")
-            
-        }else{
+
+        } else {
 
             let line = description.split("\n")
             let title = line[0];
-    
-           let onlyTitle = filterYearFromTitle(title)
-           let teleLink = `https://t.me/movieparadise227/${value['id']}`;
-           
-            
-    
+            // https://t.me/Horror_Night_SC
+            let onlyTitle = filterYearFromTitle(title)
+            let teleLink = `https://t.me/${channel}/${value['id']}`;
+
+
+
             console.log(`number-${index} \n`)
-    
-            console.log("title",onlyTitle)
-            let v= await findMovie(onlyTitle)
-            if(v.id != null ){
-           
+
+            console.log("title", onlyTitle)
+            let v = await findMovie(onlyTitle)
+            if (v.tmdb_id != null) {
+
                 v["description"] = description
                 v['tele_link'] = teleLink
 
@@ -101,20 +107,26 @@ async function downloadPhoto(client, media, filePath) {
     }
 
     let jsonData = JSON.stringify(movieList)
-
-    fs.writeFile('movieparadise227.json', jsonData, 'utf8', (err) => {
+    if(onlyGet){
+        return jsonData
+    }
+     fs.writeFile(`../data/${channel}.json`, jsonData, 'utf8', (err) => {
         if (err) {
-          console.error('Error writing file:', err);
-          return;
+            console.error('Error writing file:', err);
+            return;
         }
         console.log('JSON data has been appended to the file');
-      });
+        insertMovieToDb(`${channel}.json`)
 
+    });
 
-    console.log("hello --->")
+    return jsonData;
+
     // result.map(  (value, index) => {
-      
+
     // },)
-    console.log(movieList);
     // await pollMessages(client, "moviecrazyy252")
-})();
+};
+
+
+module.exports = {getAndInsertTeleMoviesToDb}

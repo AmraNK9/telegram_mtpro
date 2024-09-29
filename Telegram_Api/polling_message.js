@@ -12,10 +12,10 @@ async function pollMessages(client, channelName,onShortMessage = null) {
                 //     message: "Hello"
                 //    })
                 // )
-                console.log("send message success, ", result)
+                // console.log("send message success, ", result)
    
                } catch (error) {
-                   console.log("create message error -- ",error)
+                //    console.log("create message error -- ",error)
                }
         }
         console.log( 'new update - ',update.className);
@@ -29,11 +29,11 @@ async function pollMessages(client, channelName,onShortMessage = null) {
                     await downloadPhoto(client, message.media, filePath);
                 }
                 const messageLink = `https://t.me/${channel.username}/${message.id}`;
-                console.log('New message link:', messageLink);
+                // console.log('New message link:', messageLink);
             }
         }
     });
-    console.log(`Started polling for new messages in channel: ${channel.id}`);
+    // console.log(`Started polling for new messages in channel: ${channel.id}`);
 }
 
 module.exports = {pollMessages}

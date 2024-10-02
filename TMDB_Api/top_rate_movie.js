@@ -12,7 +12,7 @@ async function getTopRateMovies() {
 
     // console.log(movie)
 
-    console.log(resJson)
+    // console.log(resJson)
     if (movies == null) {
         return {}
     }

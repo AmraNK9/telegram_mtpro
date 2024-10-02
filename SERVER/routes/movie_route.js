@@ -9,6 +9,8 @@ router.get("/get_tele_movies",movieController.getTeleMovies)
 router.delete('/duplicate_description',movieController.cleanDuplicateMovies)
 router.get('/get_movies',movieController.getMovies)
 router.get('/get_duplicate_movies',movieController.getDuplicateMovies)
+router.get('/get_movie_choices',movieController.getMoviesChoicesForHome)
+
 
 
 module.exports = router;

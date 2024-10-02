@@ -2,7 +2,7 @@
 const asyncHandler = require("express-async-handler");
 const { getAndInsertTeleMoviesToDb } = require("../../Telegram_Api/get_and_insert");
 const { deleteDuplicateDescriptions, getDuplicateMovies } = require("../../Database/data_cleaning");
-const { getMoviesFromDb } = require("../../Database/get_movies");
+const { getMoviesFromDb, getTrendingMovieFromDb, getTopRateMovieFromDb, getPopularMovieFromDb, getEditorChoiceMovieFromDb } = require("../../Database/get_movies");
 const { getPopular } = require("../../TMDB_Api/popular_movie");
 const { Movie } = require("../../Database/models/movie");
 const { insertPopularToDb, insertTrendingToDb, insertTopRatingToDb } = require("../../Database/data_insertion");
@@ -37,3 +37,19 @@ exports.getDuplicateMovies = asyncHandler(async (req, res, next) => {
     res.json({ success: true, movieList });
 })
 
+
+exports.getMoviesChoicesForHome = asyncHandler(async(req,res,next)=>{
+    const { limit = 15, offset = 0 } = req.query;
+
+    let trendingMovies = await getTrendingMovieFromDb({ offset: offset, limit: limit });
+    let topRatingMovies = await getTopRateMovieFromDb({ offset: offset, limit: limit });
+    let popularMovies = await getPopularMovieFromDb({ offset: offset, limit: limit });
+    let editorChoices = await getEditorChoiceMovieFromDb({ offset: offset, limit: limit });
+    res.json({
+        success:true,
+        trendingMovies,
+        topRatingMovies,
+        popularMovies,
+        editorChoices
+    })
+})

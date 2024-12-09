@@ -11,8 +11,11 @@ const jsonData = fs.readFileSync(jsonPath, 'utf-8');
 
 const movies = JSON.parse(jsonData);
 
+connectDb()
+
 Movie.insertMany(movies)
   .then(() => {
+    console.log(movies)
     console.log('Data inserted successfully');
   })
   .catch(err => console.log(err));

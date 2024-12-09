@@ -2,7 +2,7 @@
 const asyncHandler = require("express-async-handler");
 const { getAndInsertTeleMoviesToDb } = require("../../Telegram_Api/get_and_insert");
 const { deleteDuplicateDescriptions, getDuplicateMovies } = require("../../Database/data_cleaning");
-const { getMoviesFromDb, getTrendingMovieFromDb, getTopRateMovieFromDb, getPopularMovieFromDb, getEditorChoiceMovieFromDb, getNewReleaseMovieFromDb, getMovieWithGenereFromDb } = require("../../Database/get_movies");
+const { getMoviesFromDb, getTrendingMovieFromDb, getTopRateMovieFromDb, getPopularMovieFromDb, getEditorChoiceMovieFromDb, getNewReleaseMovieFromDb, getMovieWithGenereFromDb, getMoviesWithTmdbId } = require("../../Database/get_movies");
 const { getPopular } = require("../../TMDB_Api/popular_movie");
 const { Movie } = require("../../Database/models/movie");
 const { insertPopularToDb, insertTrendingToDb, insertTopRatingToDb } = require("../../Database/data_insertion");
@@ -10,7 +10,7 @@ const { getTrending } = require("../../TMDB_Api/trending_movies");
 const { getSimillarMovie } = require("../../TMDB_Api/get_simillar_movie");
 
 exports.insertTeleMovie = asyncHandler(async (req, res, next) => {
-    const channelName = req.body.channelName;
+    let channelName = req.body.channelName;
     let movieList = await getAndInsertTeleMoviesToDb(channelName)
     res.json({ success: true, movieList });
 });
@@ -27,20 +27,20 @@ exports.cleanDuplicateMovies = asyncHandler(async (req, res, next) => {
 })
 
 exports.getMovies = asyncHandler(async (req, res, next) => {
-    const { limit = 10, offset = 0 } = req.query;
+    let { limit = 10, offset = 0 } = req.query;
     let movieList = await getMoviesFromDb({ offset: offset, limit: limit })
     res.json({ success: true, movieList });
 })
 
 exports.getDuplicateMovies = asyncHandler(async (req, res, next) => {
-    const { limit = 10, offset = 0 } = req.query;
+    let { limit = 10, offset = 0 } = req.query;
     let movieList = await getDuplicateMovies({ offset: offset, limit: limit })
     res.json({ success: true, movieList });
 })
 
 
 exports.getMoviesChoicesForHome = asyncHandler(async(req,res,next)=>{
-    const { limit = 15, offset = 0 } = req.query;
+    let { limit = 15, offset = 0 } = req.query;
 
     let trendingMovies = await getTrendingMovieFromDb({ offset: offset, limit: limit });
     let topRatingMovies = await getTopRateMovieFromDb({ offset: offset, limit: limit });
@@ -56,43 +56,69 @@ exports.getMoviesChoicesForHome = asyncHandler(async(req,res,next)=>{
 })
 
 exports.getPopular = asyncHandler(async(req,res,next)=>{
-    const { limit = 15, offset = 0 } = req.query;
+    let { limit = 15, offset = 0 } = req.query;
     let movieList = await getPopularMovieFromDb({ offset: offset, limit: limit })
     res.json({ success: true, movieList });
 })
 
 exports.getTrending = asyncHandler(async(req,res,next)=>{
-    const { limit = 15, offset = 0 } = req.query;
-    let movieList = await getTrendingMovieFromDb({ offset: offset, limit: limit })
+    let { limit = 15, offset = 0 } = req.query;
+    offset = (limit*offset)+1;
+    let movieList;
+    try {
+         movieList = await getTrendingMovieFromDb({ offset: offset, limit: limit });
+
+    } catch (error) {
+        console.log(error)
+        res.json({success: false, error})
+    }
     res.json({ success: true, movieList });
 })
 
 exports.getTopRate = asyncHandler(async(req,res,next)=>{
-    const { limit = 15, offset = 0 } = req.query;
+    let { limit = 15, offset = 0 } = req.query;
+    offset = (limit*offset)+1;
+
     let movieList = await getTopRateMovieFromDb({ offset: offset, limit: limit })
     res.json({ success: true, movieList });
 })
 
 exports.getEditorChoice = asyncHandler(async(req,res,next)=>{
-    const { limit = 15, offset = 0 } = req.query;
+    let { limit = 15, offset = 0 } = req.query;
+    offset = (limit*offset)+1;
+
     let movieList = await getEditorChoiceMovieFromDb({ offset: offset, limit: limit })
     res.json({ success: true, movieList });
 })
 
+
 exports.getNewRelease = asyncHandler(async(req,res,next)=>{
-    const { limit = 15, offset = 0 } = req.query;
+    let { limit = 15, offset = 0 } = req.query;
+    offset = (limit*offset)+1;
+
     let movieList = await getNewReleaseMovieFromDb({ offset: offset, limit: limit })
     res.json({ success: true, movieList });
 })
 
 exports.getMovieWithGenere = asyncHandler(async(req,res,next)=>{
-    const { limit = 15, offset = 0 ,id } = req.query;
+    let { limit = 30, offset = 0 ,id } = req.query;
+    offset = (limit*offset)+1;
+
     let movieList = await getMovieWithGenereFromDb({ offset: offset, limit: limit ,id })
+    res.json({ success: true, movieList });
+});
+
+exports.getMovieWithTmdb = asyncHandler(async(req,res,next)=>{
+    let { limit = 30, offset = 0 ,id } = req.query;
+    offset = (limit*offset)+1;
+
+    let movieList = await getMoviesWithTmdbId({ offset: offset, limit: limit ,id })
     res.json({ success: true, movieList });
 })
 
 exports.getSimillar = asyncHandler(async(req,res,next)=>{
-    const { limit = 15, offset = 0 , id} = req.query;
+    let { limit = 10, offset = 0 , id} = req.query;
+    offset = (limit*offset)+1;
     let movieList = await getSimillarMovie(id)
     let tmdbIds = []
     movieList.forEach(element => {
@@ -101,5 +127,15 @@ exports.getSimillar = asyncHandler(async(req,res,next)=>{
  let simillarMovie =   await Movie.find({ tmdb_id: { $in: tmdbIds } }).limit(20)
     .catch((err) => {
         console.error("Error finding movies:", err);
-    });    res.json({ success: true, "movieList":simillarMovie });
+    }); res.json({ success: true, "movieList":simillarMovie });
+})
+
+exports.searchMovies = asyncHandler(async(req,res,next)=>{
+    let {query } = req.query;
+    let result = await Movie.find({title: query}).catch((err) => {
+        console.error("Error finding movie:",err);
+
+    })
+    res.json({success: true, 'movieList': result})
+
 })

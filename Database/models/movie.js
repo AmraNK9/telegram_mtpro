@@ -60,7 +60,7 @@ const movieSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-});
+},{timestamps: true});
 
 // Create the model using the schema
 const Movie = mongoose.model('Movie', movieSchema);

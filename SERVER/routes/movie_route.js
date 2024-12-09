@@ -17,6 +17,9 @@ router.get('/get_editor_choice',movieController.getEditorChoice)
 router.get('/get_new_release',movieController.getNewRelease)
 router.get('/get_simillar',movieController.getSimillar)
 router.get('/get_movie_with_genere',movieController.getMovieWithGenere)
+router.get('/get_movie_with_tmdb',movieController.getMovieWithTmdb)
+router.get('/movies/search',movieController.searchMovies)
+
 
 
 

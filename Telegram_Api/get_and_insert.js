@@ -110,13 +110,14 @@ const getAndInsertTeleMoviesToDb = async (channelName = '', {onlyGet = false}) =
     if(onlyGet){
         return jsonData
     }
-     fs.writeFile(`../data/${channel}.json`, jsonData, 'utf8', (err) => {
+    // C:\Users\kim\Project\Tele Movie\telegram_mtpro\data
+     fs.writeFile(`../telegram_mtpro/data/${channel}.json`, jsonData, 'utf8', (err) => {
         if (err) {
             console.error('Error writing file:', err);
             return;
         }
         console.log('JSON data has been appended to the file');
-        insertMovieToDb(`${channel}.json`)
+        insertMovieToDb(`../telegram_mtpro/data/${channel}.json`)
 
     });
 
@@ -128,5 +129,14 @@ const getAndInsertTeleMoviesToDb = async (channelName = '', {onlyGet = false}) =
     // await pollMessages(client, "moviecrazyy252")
 };
 
+// https://t.me/MMSUBMOVIEFORFREE
+// https://t.me/horrorvscartoons2
+// https://t.me/mm23movieschannel
+// LarverCartoonAndMovie
+// adgj24/531
+
+// https://t.me/deliveryman_mmsub/
+// getAndInsertTeleMoviesToDb("adgj24",{onlyGet:false})
+// insertMovieToDb(`../telegram_mtpro/data/mm23movieschannel.json`)
 
 module.exports = {getAndInsertTeleMoviesToDb}
